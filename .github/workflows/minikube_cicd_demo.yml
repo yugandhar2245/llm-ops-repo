@@ -1,0 +1,38 @@
+name: CI/CD with Minikube and Kubernetes
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-to-minikube:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
+
+      - name: Start Minikube
+        run: |
+          minikube start --driver=docker
+
+      - name: Build Backend Docker Image Locally
+        run: |
+          cd backend
+          & minikube -p minikube docker-env --shell powershell | Invoke-Expression
+          docker build -t cicd_backend_groq -f ./Dockerfile .
+
+      - name: Build Frontend Docker Image Locally
+        run: |
+          cd frontend
+          & minikube -p minikube docker-env --shell powershell | Invoke-Expression
+          docker build -t cicd_frontend_groq -f ./Dockerfile .
+
+      - name: Apply Kubernetes Configurations
+        run: |
+          kubectl apply -f cicd_backend_deployment.yaml
+          kubectl apply -f cicd_frontend_deployment.yaml

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot UI</title>
+    <style>
+        /* Reset margin and padding for the whole document */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body { 
+            font-family: Arial, sans-serif; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            margin: 0;
+            background-color: #f4f6f8;
+            overflow: hidden; /* Prevents page scrolling */
+        }
+        
+        #chatbox-container {
+            width: 85vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+        }
+
+        #header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            background-color: #ffffff;
+            color: white;
+        }
+
+        #header h1 {
+            color: rgb(31, 33, 72);
+            font-weight: bold;
+            font-size: 1.5em;
+            margin: 0;
+            margin-right: 15px; /* Space between title and logo */
+        }
+
+        #header img {
+            height: 40px;
+        }
+
+        #chatbox { 
+            flex: 1;
+            padding: 20px; 
+            padding-bottom: 40px; /* Add padding to the bottom */
+            overflow-y: auto; 
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background-color: #f0f2f5;
+        }
+
+        .message { 
+            max-width: 70%; 
+            padding: 10px 15px; 
+            border-radius: 20px; 
+            font-size: 1em; 
+            line-height: 1.5;
+            word-wrap: break-word;
+            display: inline-block;
+        }
+
+        .user { 
+            align-self: flex-end; 
+            background-color: #0078d4; 
+            color: white;
+            text-align: right;
+            border-radius: 20px 20px 0 20px;
+        }
+
+        .bot { 
+            align-self: flex-start; 
+            background-color: #e3e6ea; 
+            color: #333;
+            border-radius: 20px 20px 20px 0;
+        }
+
+        #input-container {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+            background: #f8f9fa;
+        }
+
+        #userInput {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            font-size: 1em;
+            outline: none;
+        }
+
+        #sendButton {
+            padding: 0 20px;
+            background-color: #0078d4;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        #sendButton:hover {
+            background-color: #005bb5;
+        }
+    </style>
+</head>
+<body>
+    <div id="chatbox-container">
+        <div id="header">
+            <img src="https://www.zs.com/content/dam/images/illustrations/ZS%20Logo%20SPOT.svg" alt="ZS Logo" style="margin-right: 10px;">
+            <h1> Chatbot - CI/CD</h1>
+        </div>
+        <div id="chatbox"></div>
+        <div id="input-container">
+            <input type="text" id="userInput" placeholder="Type a message..." />
+            <button id="sendButton" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        function appendMessage(text, sender) {
+            const chatbox = document.getElementById('chatbox');
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', sender);
+            messageDiv.textContent = text;
+            chatbox.appendChild(messageDiv);
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const userInput = document.getElementById('userInput');
+            const message = userInput.value;
+            appendMessage(message, 'user');
+            userInput.value = '';
+
+            const response = await fetch('/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({ message }),
+            });
+
+            const data = await response.json();
+            appendMessage(data.response, 'bot');
+        }
+    </script>
+</body>
+</html>
